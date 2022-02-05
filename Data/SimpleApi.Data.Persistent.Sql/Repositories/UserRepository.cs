@@ -1,136 +1,61 @@
-﻿using System.Data;
-using System.Data.SqlClient;
-using Dapper;
-using Microsoft.Extensions.Configuration;
+﻿using Dapper;
 using SimpleApi.Data.Persistent.Repositories;
+using SimpleApi.Data.Persistent.Sql.Factories;
 using SimpleApi.Domain.Pet;
-using SimpleApi.Domain.Pet.Dto;
 using SimpleApi.Domain.User;
 using SimpleApi.Domain.User.Dto;
 
 namespace SimpleApi.Data.Persistent.Sql.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository : BaseRepository<User, Guid>, IUserRepository
 {
-    private readonly IDbConnection _dbConnection;
-    private bool _isDbConnectionDisposed;
-
-    public UserRepository(IConfiguration configuration)
+    public UserRepository(
+        IDbConnectionFactory dbConnectionFactory) 
+        : base(dbConnectionFactory)
     {
-        var connectionString = configuration.GetConnectionString("Default");
-        _dbConnection = new SqlConnection(connectionString);
     }
-
-    ~UserRepository()
+    public async Task<User> CreateAsync(CreateUserDto createUserDto)
     {
-        if (_isDbConnectionDisposed)
-        {
-            return;
-        }
+        var sqlCreateUser = $"INSERT INTO {TableName} ({nameof(User.Name)}) OUTPUT INSERTED.* VALUES (@Name)";
 
-        _dbConnection.Dispose();
-        _isDbConnectionDisposed = true;
-    }
-
-    public async Task<UserBasicInfo> GetAsync(Guid id)
-    {
-        const string sqlGetUser = "SELECT * FROM Users WHERE Id = @Id";
-
-        var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sqlGetUser, new { Id = id });
+        var user = await DbConnection.QueryFirstOrDefaultAsync<User>(sqlCreateUser, new {createUserDto.Name});
 
         if (user == null)
         {
-            return null;
+            throw new InvalidDataException("Cannot insert a new user to the database.");
         }
 
-        return new UserBasicInfo
-        {
-            Id = user.Id,
-            Name = user.Name
-        };
+        return user;
     }
 
-    public async Task<IList<UserBasicInfo>> GetAllAsync()
+    public async Task<User> UpdateAsync(UpdateUserDto updateUserDto)
     {
-        const string sqlGetAllUsers = "SELECT * FROM Users";
+        var sqlUpdateUser = $"UPDATE {TableName} SET {nameof(User.Name)} = @Name OUTPUT INSERTED.* WHERE Id = @Id";
 
-        var users = await _dbConnection.QueryAsync<User>(sqlGetAllUsers);
-
-        return users.Select(user => new UserBasicInfo
-        {
-            Id = user.Id,
-            Name = user.Name
-        }).AsList();
-    }
-
-    public async Task<UserBasicInfo> CreateAsync(CreateUserDto createUserDto)
-    {
-        const string sqlCreateUser = "INSERT INTO Users (Name) OUTPUT INSERTED.* VALUES (@Name)";
-
-        var user = await _dbConnection.QueryFirstOrDefaultAsync<User>(sqlCreateUser, new {createUserDto.Name});
-
-        if (user == null)
-        {
-            return null;
-        }
-
-        return new UserBasicInfo
-        {
-            Id = user.Id,
-            Name = user.Name
-        };
-    }
-
-    public async Task<bool> DeleteAsync(Guid id)
-    {
-        const string sqlDeleteUserById = "DELETE FROM Users WHERE Id = @Id";
-
-        var result = await _dbConnection.ExecuteAsync(sqlDeleteUserById, new {Id = id});
-
-        return result == 1;
-    }
-
-    public async Task<UserBasicInfo> UpdateAsync(UpdateUserDto updateUserDto)
-    {
-        const string sqlUpdateUser = $"UPDATE Users SET {nameof(User.Name)} = @Name OUTPUT INSERTED.* WHERE Id = @Id";
-
-        var result = await _dbConnection.QueryFirstOrDefaultAsync<User>(sqlUpdateUser, new
+        var updatedUser = await DbConnection.QueryFirstOrDefaultAsync<User>(sqlUpdateUser, new
         {
             updateUserDto.Name,
             updateUserDto.Id
         });
 
-        return new UserBasicInfo
-        {
-            Id = result.Id,
-            Name = result.Name
-        };
+        return updatedUser;
     }
 
-    public async Task<UserBasicInfoWithPetsSummary> GetUserPets(Guid id)
+    public async Task<IList<Pet>> GetUserPets(Guid id)
     {
-        const string sqlGetUserPets =
-            "SELECT pets.* " +
-            "FROM users " +
-            "JOIN pets " +
-            $"ON users.{nameof(User.Id)} = pets.{nameof(Pet.UserId)} " +
-            $"WHERE users.{nameof(User.Id)} = @Id";
+        var secondTableName = nameof(Pet) + 's';
+        var sqlGetUserPets =
+            $"SELECT {secondTableName}.* " +
+            $"FROM {TableName} " +
+            $"JOIN {secondTableName} " +
+            $"ON {TableName}.{nameof(User.Id)} = {secondTableName}.{nameof(Pet.UserId)} " +
+            $"WHERE {TableName}.{nameof(User.Id)} = @Id";
 
-        var pets = await _dbConnection.QueryAsync<Pet>(sqlGetUserPets, new
+        var pets = await DbConnection.QueryAsync<Pet>(sqlGetUserPets, new
         {
             Id = id
         });
 
-        var petsSummary = pets.Select(pet => new PetBasicInfo
-        {
-            Id = pet.Id,
-            Color = pet.Color,
-            Name = pet.Name
-        }).AsList();
-
-        return new UserBasicInfoWithPetsSummary
-        {
-            Pets = petsSummary
-        };
+        return pets.AsList();
     }
 }

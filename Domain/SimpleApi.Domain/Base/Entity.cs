@@ -1,6 +1,6 @@
 ﻿namespace SimpleApi.Domain.Base;
 
-public class Entity<T>
+public class Entity<T> : IEntity<T>
 {
     public T Id { get; protected set; }
 
@@ -14,7 +14,7 @@ public class Entity<T>
         Id = id;
     }
 
-    // For EF
+    // Required for Dapper
     protected Entity()
     {
     }

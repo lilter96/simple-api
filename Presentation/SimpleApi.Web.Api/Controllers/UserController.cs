@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SimpleApi.Data.Persistent.Repositories;
 using SimpleApi.Domain.User.Dto;
+using IUserDomainService = SimpleApi.Domain.User.IUserService;
 
 namespace SimpleApi.Web.Api.Controllers;
 
@@ -10,16 +11,21 @@ public class UserController : ControllerBase
 {
     private readonly IUserRepository _repository;
 
-    public UserController(IUserRepository repository)
+    private readonly IUserDomainService _userDomainService;
+
+    public UserController(
+        IUserRepository repository, 
+        IUserDomainService userDomainService)
     {
         _repository = repository;
+        _userDomainService = userDomainService;
     }
 
     [HttpGet]
     [Route("{id:guid}")]
     public async Task<IActionResult> GetUserById([FromRoute] Guid id)
     {
-        var user = await _repository.GetAsync(id);
+        var user = await _userDomainService.GetUserWithPets(id);
 
         if (user == null)
         {
@@ -62,7 +68,7 @@ public class UserController : ControllerBase
     [Route("{id:guid}")]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
-        var result = await _repository.DeleteAsync(id);
+        var result = await _repository.DeleteByIdAsync(id);
 
         return result ? Ok() : NotFound($"Cannot delete user with ID {id}");
     }

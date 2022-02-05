@@ -15,7 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Application\SimpleApi.Application.Services\SimpleApi.Application.Services.csproj" />
     <ProjectReference Include="..\..\Data\SimpleApi.Data.Persistent.Sql\SimpleApi.Data.Persistent.Sql.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\Pet\" />
   </ItemGroup>
 
 </Project>
