@@ -31,4 +31,29 @@ public class PetService : IPetService
             IsSuccess = true
         };
     }
+
+    public async Task<PetSummaryResponseDto> GetPetSummaryById(Guid petId)
+    {
+        var pet = await _petRepository.GetByIdAsync(petId);
+
+        return new PetSummaryResponseDto
+        {
+            Id = pet.Id,
+            Color = pet.Color,
+            Name = pet.Name,
+            UserId = pet.UserId,
+            CollarId = pet.CollarId,
+            Weight = pet.Weight
+        };
+    }
+
+    public async Task<PetSummaryResponseDto> CreatePet(CreatePetRequestDto createPetRequestDto)
+    {
+        return await _petRepository.CreatePet(createPetRequestDto); ;
+    }
+
+    public Task<PetSummaryResponseDto> UpdatePet(UpdatePetRequestDto updatePetRequestDto)
+    {
+        return _petRepository.UpdatePet(updatePetRequestDto);
+    }
 }

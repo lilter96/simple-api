@@ -11,18 +11,38 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Register AutoMapper profiles
+
+builder.Services.AddAutoMapper(config =>
+{
+    config.AddMaps(
+        typeof(Program), 
+        typeof(PetService));
+});
+
+// Register domain services
 
 builder.Services.AddTransient<IPetDomainService, PetDomainService>();
 builder.Services.AddTransient<IUserDomainService, UserDomainService>();
 
+// Register DbConnectionFactory
+
 builder.Services.AddSingleton<IDbConnectionFactory, DapperDbConnectionFactory>();
+
+// Register repositories
+
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IPetRepository, PetRepository>();
 
+// Register application services
+
 builder.Services.AddTransient<IPetService, PetService>();
+
+// Register ASP.NET Services
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 

@@ -1,9 +1,9 @@
-﻿namespace SimpleApi.Web.Api.Models.Pet;
+﻿namespace SimpleApi.Domain.Pet.Dto;
 
-public class UpdatePetModel
+public class UpdatePetRequestDto
 {
     public Guid Id { get; set; }
-    
+
     public string? Name { get; set; }
 
     public string? Color { get; set; }
