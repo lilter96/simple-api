@@ -10,5 +10,6 @@ public class PetProfile : Profile
     {
         CreateMap<CreatePetModel, CreatePetRequestDto>();
         CreateMap<UpdatePetModel, UpdatePetRequestDto>();
+        CreateMap<BindPetToUserModel, BindPetToUserDto>();
     }
 }

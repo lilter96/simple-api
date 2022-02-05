@@ -60,14 +60,9 @@ public class PetController : ControllerBase
     [Route("bind")]
     public async Task<IActionResult> BindPetToUser(BindPetToUserModel bindPetToUserModel)
     {
-        var bindPetToUserDto = new BindPetToUserDto
-        {
-            PetId = bindPetToUserModel.PetId,
-            UserId = bindPetToUserModel.UserId
-        };
+        var bindPetToUserDto = _mapper.Map<BindPetToUserDto>(bindPetToUserModel);
 
         var result = await _petService.BindPetToUserAsync(bindPetToUserDto);
-
 
         return result
             ? Ok()
