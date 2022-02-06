@@ -1,6 +1,6 @@
 ﻿namespace SimpleApi.Domain.Base;
 
-public class Entity<T> : IEntity<T>
+public class Entity<T> : IEntity
 {
     public T Id { get; protected set; }
 

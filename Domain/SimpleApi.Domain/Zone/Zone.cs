@@ -1,7 +1,7 @@
 ﻿using SimpleApi.Domain.Base;
-using SimpleApi.Domain.Fence.Geo;
+using SimpleApi.Domain.Zone.Geo;
 
-namespace SimpleApi.Domain.Fence;
+namespace SimpleApi.Domain.Zone;
 
 public class Zone : Entity<Guid>, ICreated
 {
@@ -18,6 +18,8 @@ public class Zone : Entity<Guid>, ICreated
     public IList<GeoCoordinates> Coordinates { get; set; } = new List<GeoCoordinates>();
 
     public string Name { get; set; }
+
+    public Guid UserId { get; set; }
 
     public IList<Pet.Pet> Pets { get; set; } = new List<Pet.Pet>(); 
 

@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="Base\" />
     <Folder Include="Collar\" />
-    <Folder Include="Fence\Geo\" />
     <Folder Include="Pet\Dto\" />
     <Folder Include="User\Dto\" />
   </ItemGroup>

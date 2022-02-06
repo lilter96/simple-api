@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Reflection;
 using Dapper;
 using SimpleApi.Data.Persistent.Exceptions;
 using SimpleApi.Data.Persistent.Repositories.Base;
@@ -8,7 +7,7 @@ using SimpleApi.Domain.Base;
 
 namespace SimpleApi.Data.Persistent.Sql.Repositories;
 
-public abstract class BaseRepository<TEntity, TId> : IRepository<TEntity, TId> where TEntity : IEntity<TId>
+public abstract class BaseRepository<TEntity, TId> : IRepository<TEntity, TId> where TEntity : Entity<TId>
 {
     private readonly IDbConnectionFactory _dbConnectionFactory;
     protected string TableName = typeof(TEntity).Name + "s";

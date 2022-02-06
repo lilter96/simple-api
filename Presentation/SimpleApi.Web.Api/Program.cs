@@ -1,7 +1,11 @@
+using MongoDB.Bson.Serialization.Conventions;
 using SimpleApi.Application.Services.Pet;
+using SimpleApi.Data.MongoDb.Factories;
+using SimpleApi.Data.MongoDb.Repositories;
 using SimpleApi.Data.Persistent.Repositories;
 using SimpleApi.Data.Persistent.Sql.Factories;
 using SimpleApi.Data.Persistent.Sql.Repositories;
+using SimpleApi.Web.Api.Extensions;
 using IPetDomainService = SimpleApi.Domain.Pet.IPetService;
 using PetDomainService = SimpleApi.Domain.Services.Pet.PetService;
 using IUserDomainService = SimpleApi.Domain.User.IUserService;
@@ -17,8 +21,13 @@ builder.Services.AddAutoMapper(config =>
 {
     config.AddMaps(
         typeof(Program), 
-        typeof(PetService));
+        typeof(PetService),
+        typeof(ZoneRepository));
 });
+
+// Register MongoDb convention
+
+builder.Services.AddBsonConventionsAndClassMaps();
 
 // Register domain services
 
@@ -29,10 +38,15 @@ builder.Services.AddTransient<IUserDomainService, UserDomainService>();
 
 builder.Services.AddSingleton<IDbConnectionFactory, DapperDbConnectionFactory>();
 
+// Register MongoDbClientFactory
+
+builder.Services.AddSingleton<IMongoDbClientFactory, MongoDbClientFactory>();
+
 // Register repositories
 
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IPetRepository, PetRepository>();
+builder.Services.AddTransient<ZoneRepository>();
 
 // Register application services
 

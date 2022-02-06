@@ -1,4 +1,4 @@
-﻿namespace SimpleApi.Domain.Fence.Geo;
+﻿namespace SimpleApi.Domain.Zone.Geo;
 
 public class GeoCoordinates
 {
